@@ -1,7 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +8,7 @@ public class Node {
     private boolean visited;
     private final int value;
     Node[][] matrixNodes;
-    private List<Node> neighbors = new ArrayList();
+    private List<Node> neighbors = new ArrayList<>();
     private int cost;
     private int heuristic;
     private Node previous;

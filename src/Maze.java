@@ -1,7 +1,3 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
 
 import java.awt.Color;
 import java.awt.GridLayout;
@@ -10,16 +6,12 @@ import java.awt.event.WindowEvent;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Random;
 import java.util.Stack;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 
 public class Maze extends JFrame {
     private int[][] values;
@@ -64,13 +56,13 @@ public class Maze extends JFrame {
         this.values[0][0] = 0;
         this.values[size - 1][size - 1] = 0;
         this.visited = new boolean[this.values.length][this.values.length];
-        this.buttonList = new ArrayList();
+        this.buttonList = new ArrayList<>();
         this.rows = this.values.length;
         this.columns = this.values.length;
     }
 
     private void setupFrame() {
-        this.setDefaultCloseOperation(0);
+        this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         this.setSize(725, 725);
         this.setResizable(false);
         this.setLayout(new GridLayout(this.rows, this.columns));
@@ -97,39 +89,38 @@ public class Maze extends JFrame {
     }
 
     private void solveMaze() {
-        SwingWorker<Boolean, Void> worker = new SwingWorker<Boolean, Void>() {
+        SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
             protected Boolean doInBackground() {
-                Boolean var10000;
+                boolean var10000;
                 Node startNode;
-                switch (Maze.this.algorithm) {
-                    case "DFS":
+                var10000 = switch (Maze.this.algorithm) {
+                    case "DFS" -> {
                         startNode = new Node(Maze.this.startRow, Maze.this.startColumn, 0, Maze.this.createMatrixNodes());
-                        var10000 = Maze.this.DFS_ALGORITHM(startNode);
-                        break;
-                    case "BFS":
+                        yield Maze.this.DFS_ALGORITHM(startNode);
+                    }
+                    case "BFS" -> {
                         startNode = new Node(Maze.this.startRow, Maze.this.startColumn, 0, Maze.this.createMatrixNodes());
-                        var10000 = Maze.this.BFS_ALGORITHM(startNode);
-                        break;
-                    case "Dijkstra":
+                        yield Maze.this.BFS_ALGORITHM(startNode);
+                    }
+                    case "Dijkstra" -> {
                         startNode = new Node(Maze.this.startRow, Maze.this.startColumn, 0, Maze.this.createMatrixNodes());
-                        var10000 = Maze.this.Dijkstra(startNode);
-                        break;
-                    case "A*":
+                        yield Maze.this.Dijkstra(startNode);
+                    }
+                    case "A*" -> {
                         startNode = new Node(Maze.this.startRow, Maze.this.startColumn, 0, Maze.this.createMatrixNodes());
-                        var10000 = Maze.this.AStar(startNode);
-                        break;
-                    default:
-                        var10000 = false;
-                }
+                        yield Maze.this.AStar(startNode);
+                    }
+                    default -> false;
+                };
 
                 return var10000;
             }
 
             protected void done() {
                 try {
-                    boolean result = (Boolean)this.get();
+                    boolean result = this.get();
                     String message = String.format("<html><body style='font-size:30px;'><p style='color:blue;'>Results</p><p><b>Algorithm:</b> <span style='color:green;'>%s</span></p><p><b>Solution:</b> <span style='color:%s;'>%s</span></p><p><b>Number of Nodes:</b> <span style='color:orange;'>%d</span></p></body></html>", Maze.this.algorithm, result ? "green" : "red", result ? "Found" : "Not Found", Maze.counterNodes);
-                    JOptionPane.showMessageDialog(Maze.this, message, "Results", 1);
+                    JOptionPane.showMessageDialog(Maze.this, message, "Results", JOptionPane.INFORMATION_MESSAGE);
                     int returnMenu = JOptionPane.showConfirmDialog(Maze.this, "Do you want to return to the menu?", "Return to Menu", 0);
                     if (returnMenu == 0) {
                         Maze.this.dispose();
@@ -150,7 +141,7 @@ public class Maze extends JFrame {
         try {
             if (!visited) {
                 this.visited[x][y] = false;
-                ((JButton)this.buttonList.get(x * this.columns + y)).setBackground(Color.WHITE);
+                this.buttonList.get(x * this.columns + y).setBackground(Color.WHITE);
                 Thread.sleep(0L);
                 this.backtracking = true;
             } else {
@@ -165,9 +156,9 @@ public class Maze extends JFrame {
                     for(int j = 0; j < this.visited[i].length; ++j) {
                         if (this.visited[i][j]) {
                             if (i == x && y == j) {
-                                ((JButton)this.buttonList.get(i * this.rows + j)).setBackground(Color.RED);
+                                this.buttonList.get(i * this.rows + j).setBackground(Color.RED);
                             } else {
-                                ((JButton)this.buttonList.get(i * this.rows + j)).setBackground(Color.BLUE);
+                                this.buttonList.get(i * this.rows + j).setBackground(Color.BLUE);
                             }
                         }
                     }
@@ -194,7 +185,7 @@ public class Maze extends JFrame {
     }
 
     public boolean BFS_ALGORITHM(Node startNode) {
-        Queue<Node> queue = new LinkedList();
+        Queue<Node> queue = new LinkedList<>();
         queue.add(startNode);
 
         while(true) {
@@ -204,7 +195,7 @@ public class Maze extends JFrame {
                     return false;
                 }
 
-                currentNode = (Node)queue.poll();
+                currentNode = queue.poll();
             } while(currentNode.isVisited());
 
             ++counterNodes;
@@ -218,10 +209,7 @@ public class Maze extends JFrame {
                 return true;
             }
 
-            Iterator var4 = currentNode.getNeighbors().iterator();
-
-            while(var4.hasNext()) {
-                Node neighbor = (Node)var4.next();
+            for (Node neighbor : currentNode.getNeighbors()) {
                 if (!neighbor.isVisited()) {
                     queue.add(neighbor);
                 }
@@ -230,7 +218,7 @@ public class Maze extends JFrame {
     }
 
     public boolean DFS_ALGORITHM(Node startNode) {
-        Stack<Node> stack = new Stack();
+        Stack<Node> stack = new Stack<>();
         stack.add(startNode);
 
         while(true) {
@@ -240,20 +228,17 @@ public class Maze extends JFrame {
                     return false;
                 }
 
-                currentNode = (Node)stack.pop();
+                currentNode = stack.pop();
             } while(currentNode.isVisited());
 
-            ++counterNodes;
+            counterNodes++;
             currentNode.setVisited(true);
             this.setSquareAsVisited(currentNode.getRow(), currentNode.getColumn(), true);
             if (currentNode.getRow() == this.rows - 1 && currentNode.getColumn() == this.columns - 1) {
                 return true;
             }
 
-            Iterator var4 = currentNode.getNeighbors().iterator();
-
-            while(var4.hasNext()) {
-                Node neighbor = (Node)var4.next();
+            for (Node neighbor : currentNode.getNeighbors()) {
                 if (!neighbor.isVisited()) {
                     stack.add(neighbor);
                 }
@@ -262,7 +247,7 @@ public class Maze extends JFrame {
     }
 
     public boolean AStar(Node startNode) {
-        PriorityQueue<Node> priorityQueue = new PriorityQueue(Comparator.comparingInt(Node::getTotalCost));
+        PriorityQueue<Node> priorityQueue = new PriorityQueue<>(Comparator.comparingInt(Node::getTotalCost));
         startNode.setCost(0);
         startNode.setHeuristic(this.heuristic(startNode, this.rows - 1, this.columns - 1));
         priorityQueue.add(startNode);
@@ -274,7 +259,7 @@ public class Maze extends JFrame {
                     return false;
                 }
 
-                currentNode = (Node)priorityQueue.poll();
+                currentNode = priorityQueue.poll();
             } while(currentNode.isVisited());
 
             ++counterNodes;
@@ -284,10 +269,7 @@ public class Maze extends JFrame {
                 return true;
             }
 
-            Iterator var4 = currentNode.getNeighbors().iterator();
-
-            while(var4.hasNext()) {
-                Node neighbor = (Node)var4.next();
+            for (Node neighbor : currentNode.getNeighbors()) {
                 if (!neighbor.isVisited()) {
                     int newCost = currentNode.getCost() + 1;
                     if (newCost < neighbor.getCost()) {
@@ -302,7 +284,7 @@ public class Maze extends JFrame {
     }
 
     public boolean Dijkstra(Node startNode) {
-        PriorityQueue<Node> priorityQueue = new PriorityQueue(Comparator.comparingInt(Node::getCost));
+        PriorityQueue<Node> priorityQueue = new PriorityQueue<>(Comparator.comparingInt(Node::getCost));
         startNode.setCost(0);
         priorityQueue.add(startNode);
 
@@ -313,7 +295,7 @@ public class Maze extends JFrame {
                     return false;
                 }
 
-                currentNode = (Node)priorityQueue.poll();
+                currentNode = priorityQueue.poll();
             } while(currentNode.isVisited());
 
             ++counterNodes;
@@ -323,10 +305,7 @@ public class Maze extends JFrame {
                 return true;
             }
 
-            Iterator var4 = currentNode.getNeighbors().iterator();
-
-            while(var4.hasNext()) {
-                Node neighbor = (Node)var4.next();
+            for (Node neighbor : currentNode.getNeighbors()) {
                 if (!neighbor.isVisited()) {
                     int newCost = currentNode.getCost() + 1;
                     if (newCost < neighbor.getCost()) {
