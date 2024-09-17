@@ -4,12 +4,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 
-public class GUISelectionMenu extends JFrame {
+public class SelectionMenu extends JFrame {
     private final JTextField sizeField;
     private final JComboBox<String> algorithmComboBox;
 
-    public GUISelectionMenu() {
-        setTitle("Maze Size and Algorithm Selection");
+    public SelectionMenu() {
+        setTitle("Selection Menu");
         setSize(400, 200);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new GridBagLayout());
@@ -23,7 +23,7 @@ public class GUISelectionMenu extends JFrame {
         JLabel sizeLabel = new JLabel("Enter Maze Size:");
         sizeField = new JTextField();
         JLabel algorithmLabel = new JLabel("Choose Algorithm:");
-        algorithmComboBox = new JComboBox<>(new String[]{"BFS", "DFS", "A*", "Dijkstra"});
+        algorithmComboBox = new JComboBox<>(new String[]{"BFS", "DFS", "AStar", "Dijkstra"});
         JButton submitButton = new JButton("Submit");
 
         // Styling Components
@@ -81,26 +81,38 @@ public class GUISelectionMenu extends JFrame {
         public void actionPerformed(ActionEvent e) {
             try {
                 int size = Integer.parseInt(sizeField.getText().trim());
-                String algorithm = (String) algorithmComboBox.getSelectedItem();
+                String algorithmName = (String) algorithmComboBox.getSelectedItem();
 
                 if (size <= 0) {
-                    JOptionPane.showMessageDialog(GUISelectionMenu.this, "Maze size must be a positive integer.");
+                    JOptionPane.showMessageDialog(SelectionMenu.this, "Maze size must be a positive integer.");
                     return;
                 }
 
                 // Close this menu
                 dispose();
 
+                assert algorithmName != null;
+                Algorithm algorithm = createAlgorithm(algorithmName);
+
                 // Open maze with the chosen size and algorithm
                 new Maze(algorithm, size, 0, 0);
 
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(GUISelectionMenu.this, "Invalid input. Please enter a valid integer.");
+                JOptionPane.showMessageDialog(SelectionMenu.this, "Invalid input. Please enter a valid integer.");
             }
+        }
+        private Algorithm createAlgorithm(String algorithmName) {
+            return switch (algorithmName) {
+                case Definitions.ALGORITHM_BFS -> new BFS();
+                case Definitions.ALGORITHM_DFS -> new DFS();
+                case Definitions.ALGORITHM_DIJKSTRA -> new Dijkstra();
+                case Definitions.ALGORITHM_A_STAR-> new AStar();
+                default -> throw new IllegalArgumentException("Unknown algorithm: " + algorithmName);
+            };
         }
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(GUISelectionMenu::new);
+        SwingUtilities.invokeLater(SelectionMenu::new);
     }
 }

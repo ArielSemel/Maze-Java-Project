@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -7,11 +6,11 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 
 
-public class GUIMainMenu {
+public class MainMenu {
     private final JFrame frame;
-    public GUIMainMenu(){
+    public MainMenu(){
 
-        frame = new JFrame("Maze Solver");
+        frame = new JFrame("Main Menu");
 
         // Set Up the frame
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -66,7 +65,7 @@ public class GUIMainMenu {
 
     private void SelectionMenu() {
         frame.setVisible(false);
-        new GUISelectionMenu();
+        new SelectionMenu();
     }
 
     private void exitApplication() {
@@ -83,7 +82,7 @@ public class GUIMainMenu {
 
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(GUIMainMenu::new);
+        SwingUtilities.invokeLater(MainMenu::new);
     }
 
 }

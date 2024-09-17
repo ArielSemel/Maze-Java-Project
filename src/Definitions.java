@@ -1,7 +1,4 @@
-//
-// Source code recreated from a .class file by IntelliJ IDEA
-// (powered by FernFlower decompiler)
-//
+
 
 public class Definitions {
     public static final int EMPTY = 0;
@@ -12,7 +9,7 @@ public class Definitions {
     public static final int WINDOW_HEIGHT = 725;
     public static final String ALGORITHM_DFS = "DFS";
     public static final String ALGORITHM_BFS = "BFS";
-    public static final String ALGORITHM_A_STAR = "A*";
+    public static final String ALGORITHM_A_STAR = "AStar";
     public static final String ALGORITHM_DIJKSTRA = "Dijkstra";
 
     public Definitions() {

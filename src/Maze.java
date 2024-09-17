@@ -1,19 +1,12 @@
-
-import java.awt.Color;
-import java.awt.GridLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.Random;
-import java.util.Stack;
-import javax.swing.*;
+import java.util.*;
+import javax.swing.SwingWorker;
 
-public class Maze extends JFrame {
+public class Maze extends JFrame{
+
     private int[][] values;
     private boolean[][] visited;
     private final int startRow;
@@ -22,10 +15,12 @@ public class Maze extends JFrame {
     private int rows;
     private int columns;
     private boolean backtracking;
-    private final String algorithm;
+    private final Algorithm algorithm;
     private static int counterNodes;
 
-    public Maze(String algorithm, int size, int startRow, int startColumn) {
+
+    public Maze(Algorithm algorithm, int size, int startRow, int startColumn) {
+
         counterNodes = 0;
         this.algorithm = algorithm;
         this.startRow = startRow;
@@ -38,100 +33,74 @@ public class Maze extends JFrame {
     private void initializeMaze(int size) {
         Random random = new Random();
         this.values = new int[size][];
-
-        for(int i = 0; i < this.values.length; ++i) {
+        for (int i = 0; i < values.length; i++) {
             int[] row = new int[size];
-
-            for(int j = 0; j < row.length; ++j) {
-                if (i <= 1 && j <= 1) {
-                    row[j] = 0;
+            for (int j = 0; j < row.length; j++) {
+                if (i > 1 || j > 1) {
+                    row[j] = random.nextInt(8) % 7 == 0 ? Definitions.OBSTACLE : Definitions.EMPTY;
                 } else {
-                    row[j] = random.nextInt(8) % 7 == 0 ? 1 : 0;
+                    row[j] = Definitions.EMPTY;
                 }
             }
-
-            this.values[i] = row;
+            values[i] = row;
         }
 
-        this.values[0][0] = 0;
-        this.values[size - 1][size - 1] = 0;
+        values[0][0] = Definitions.EMPTY;
+        values[size - 1][size - 1] = Definitions.EMPTY;
         this.visited = new boolean[this.values.length][this.values.length];
         this.buttonList = new ArrayList<>();
-        this.rows = this.values.length;
-        this.columns = this.values.length;
+        this.rows = values.length;
+        this.columns = values.length;
     }
 
     private void setupFrame() {
-        this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-        this.setSize(725, 725);
+        this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        this.setSize(Definitions.WINDOW_WIDTH, Definitions.WINDOW_HEIGHT);
         this.setResizable(false);
-        this.setLayout(new GridLayout(this.rows, this.columns));
+        this.setLayout(new GridLayout(rows, columns));
 
-        for(int i = 0; i < this.rows * this.columns; ++i) {
-            int value = this.values[i / this.rows][i % this.columns];
+        for (int i = 0; i < rows * columns; i++) {
+            int value = values[i / rows][i % columns];
             JButton jButton = new JButton(String.valueOf(i));
-            if (value == 1) {
+            if (value == Definitions.OBSTACLE) {
                 jButton.setBackground(Color.BLACK);
             } else {
                 jButton.setBackground(Color.WHITE);
             }
-
             this.buttonList.add(jButton);
             this.add(jButton);
         }
 
         this.setVisible(true);
+
+        // Add window listener for exit confirmation
         this.addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
-                Maze.this.exitApplication();
+                exitApplication();
             }
         });
     }
 
     private void solveMaze() {
         SwingWorker<Boolean, Void> worker = new SwingWorker<>() {
+            @Override
             protected Boolean doInBackground() {
-                boolean var10000;
-                Node startNode;
-                var10000 = switch (Maze.this.algorithm) {
-                    case "DFS" -> {
-                        startNode = new Node(Maze.this.startRow, Maze.this.startColumn, 0, Maze.this.createMatrixNodes());
-                        yield Maze.this.DFS_ALGORITHM(startNode);
-                    }
-                    case "BFS" -> {
-                        startNode = new Node(Maze.this.startRow, Maze.this.startColumn, 0, Maze.this.createMatrixNodes());
-                        yield Maze.this.BFS_ALGORITHM(startNode);
-                    }
-                    case "Dijkstra" -> {
-                        startNode = new Node(Maze.this.startRow, Maze.this.startColumn, 0, Maze.this.createMatrixNodes());
-                        yield Maze.this.Dijkstra(startNode);
-                    }
-                    case "A*" -> {
-                        startNode = new Node(Maze.this.startRow, Maze.this.startColumn, 0, Maze.this.createMatrixNodes());
-                        yield Maze.this.AStar(startNode);
-                    }
-                    default -> false;
-                };
-
-                return var10000;
+                Node startNode = new Node(startRow, startColumn, Definitions.EMPTY, createMatrixNodes());
+                return algorithm.solve(startNode, Maze.this);
             }
 
+            @Override
             protected void done() {
-                try {
-                    boolean result = this.get();
-                    String message = String.format("<html><body style='font-size:30px;'><p style='color:blue;'>Results</p><p><b>Algorithm:</b> <span style='color:green;'>%s</span></p><p><b>Solution:</b> <span style='color:%s;'>%s</span></p><p><b>Number of Nodes:</b> <span style='color:orange;'>%d</span></p></body></html>", Maze.this.algorithm, result ? "green" : "red", result ? "Found" : "Not Found", Maze.counterNodes);
-                    JOptionPane.showMessageDialog(Maze.this, message, "Results", JOptionPane.INFORMATION_MESSAGE);
-                    int returnMenu = JOptionPane.showConfirmDialog(Maze.this, "Do you want to return to the menu?", "Return to Menu", 0);
-                    if (returnMenu == 0) {
-                        Maze.this.dispose();
-                        new Main();
-                    } else {
-                        System.exit(0);
-                    }
-                } catch (Exception var4) {
-                    var4.printStackTrace();
-                }
 
+                try {
+                    boolean result = get();
+                    ResultMessage rm = new ResultMessage(result, Maze.this);
+                    rm.display();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         };
         worker.execute();
@@ -139,21 +108,14 @@ public class Maze extends JFrame {
 
     public void setSquareAsVisited(int x, int y, boolean visited) {
         try {
-            if (!visited) {
-                this.visited[x][y] = false;
-                this.buttonList.get(x * this.columns + y).setBackground(Color.WHITE);
-                Thread.sleep(0L);
-                this.backtracking = true;
-            } else {
+            if (visited) {
                 if (this.backtracking) {
-                    Thread.sleep(375L);
+                    Thread.sleep(Definitions.PAUSE_BEFORE_NEXT_SQUARE * 5);
                     this.backtracking = false;
                 }
-
                 this.visited[x][y] = true;
-
-                for(int i = 0; i < this.visited.length; ++i) {
-                    for(int j = 0; j < this.visited[i].length; ++j) {
+                for (int i = 0; i < this.visited.length; i++) {
+                    for (int j = 0; j < this.visited[i].length; j++) {
                         if (this.visited[i][j]) {
                             if (i == x && y == j) {
                                 this.buttonList.get(i * this.rows + j).setBackground(Color.RED);
@@ -163,170 +125,107 @@ public class Maze extends JFrame {
                         }
                     }
                 }
+            } else {
+                this.visited[x][y] = false;
+                this.buttonList.get(x * this.columns + y).setBackground(Color.WHITE);
+                Thread.sleep(Definitions.PAUSE_BEFORE_BACKTRACK);
+                this.backtracking = true;
             }
-
-            Thread.sleep(visited ? 75L : 18L);
-        } catch (Exception var6) {
-            var6.printStackTrace();
+            Thread.sleep(visited ? Definitions.PAUSE_BEFORE_NEXT_SQUARE : Definitions.PAUSE_BEFORE_NEXT_SQUARE / 4);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
     }
 
     public Node[][] createMatrixNodes() {
-        Node[][] matrixNodes = new Node[this.rows][this.columns];
-
-        for(int i = 0; i < this.rows; ++i) {
-            for(int j = 0; j < this.columns; ++j) {
-                matrixNodes[i][j] = new Node(i, j, this.values[i][j], matrixNodes);
+        Node[][] matrixNodes = new Node[rows][columns];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < columns; j++) {
+                matrixNodes[i][j] = new Node(i, j, values[i][j], matrixNodes);
             }
         }
-
         return matrixNodes;
     }
 
-    public boolean BFS_ALGORITHM(Node startNode) {
-        Queue<Node> queue = new LinkedList<>();
-        queue.add(startNode);
-
-        while(true) {
-            Node currentNode;
-            do {
-                if (queue.isEmpty()) {
-                    return false;
-                }
-
-                currentNode = queue.poll();
-            } while(currentNode.isVisited());
-
-            ++counterNodes;
-            currentNode.setVisited(true);
-            PrintStream var10000 = System.out;
-            int var10001 = currentNode.getRow();
-            var10000.println("(" + var10001 + "," + currentNode.getColumn() + ")");
-            this.setSquareAsVisited(currentNode.getRow(), currentNode.getColumn(), true);
-            if (currentNode.getRow() == this.rows - 1 && currentNode.getColumn() == this.columns - 1) {
-                System.out.println("Number of nodes: " + counterNodes);
-                return true;
-            }
-
-            for (Node neighbor : currentNode.getNeighbors()) {
-                if (!neighbor.isVisited()) {
-                    queue.add(neighbor);
-                }
-            }
-        }
-    }
-
-    public boolean DFS_ALGORITHM(Node startNode) {
-        Stack<Node> stack = new Stack<>();
-        stack.add(startNode);
-
-        while(true) {
-            Node currentNode;
-            do {
-                if (stack.empty()) {
-                    return false;
-                }
-
-                currentNode = stack.pop();
-            } while(currentNode.isVisited());
-
-            counterNodes++;
-            currentNode.setVisited(true);
-            this.setSquareAsVisited(currentNode.getRow(), currentNode.getColumn(), true);
-            if (currentNode.getRow() == this.rows - 1 && currentNode.getColumn() == this.columns - 1) {
-                return true;
-            }
-
-            for (Node neighbor : currentNode.getNeighbors()) {
-                if (!neighbor.isVisited()) {
-                    stack.add(neighbor);
-                }
-            }
-        }
-    }
-
-    public boolean AStar(Node startNode) {
-        PriorityQueue<Node> priorityQueue = new PriorityQueue<>(Comparator.comparingInt(Node::getTotalCost));
-        startNode.setCost(0);
-        startNode.setHeuristic(this.heuristic(startNode, this.rows - 1, this.columns - 1));
-        priorityQueue.add(startNode);
-
-        while(true) {
-            Node currentNode;
-            do {
-                if (priorityQueue.isEmpty()) {
-                    return false;
-                }
-
-                currentNode = priorityQueue.poll();
-            } while(currentNode.isVisited());
-
-            ++counterNodes;
-            currentNode.setVisited(true);
-            this.setSquareAsVisited(currentNode.getRow(), currentNode.getColumn(), true);
-            if (currentNode.getRow() == this.rows - 1 && currentNode.getColumn() == this.columns - 1) {
-                return true;
-            }
-
-            for (Node neighbor : currentNode.getNeighbors()) {
-                if (!neighbor.isVisited()) {
-                    int newCost = currentNode.getCost() + 1;
-                    if (newCost < neighbor.getCost()) {
-                        neighbor.setCost(newCost);
-                        neighbor.setHeuristic(this.heuristic(neighbor, this.rows - 1, this.columns - 1));
-                        neighbor.setPrevious(currentNode);
-                        priorityQueue.add(neighbor);
-                    }
-                }
-            }
-        }
-    }
-
-    public boolean Dijkstra(Node startNode) {
-        PriorityQueue<Node> priorityQueue = new PriorityQueue<>(Comparator.comparingInt(Node::getCost));
-        startNode.setCost(0);
-        priorityQueue.add(startNode);
-
-        while(true) {
-            Node currentNode;
-            do {
-                if (priorityQueue.isEmpty()) {
-                    return false;
-                }
-
-                currentNode = priorityQueue.poll();
-            } while(currentNode.isVisited());
-
-            ++counterNodes;
-            currentNode.setVisited(true);
-            this.setSquareAsVisited(currentNode.getRow(), currentNode.getColumn(), true);
-            if (currentNode.getRow() == this.rows - 1 && currentNode.getColumn() == this.columns - 1) {
-                return true;
-            }
-
-            for (Node neighbor : currentNode.getNeighbors()) {
-                if (!neighbor.isVisited()) {
-                    int newCost = currentNode.getCost() + 1;
-                    if (newCost < neighbor.getCost()) {
-                        neighbor.setCost(newCost);
-                        neighbor.setPrevious(currentNode);
-                        priorityQueue.add(neighbor);
-                    }
-                }
-            }
-        }
-    }
-
-    private int heuristic(Node node, int goalRow, int goalColumn) {
-        return Math.abs(node.getRow() - goalRow) + Math.abs(node.getColumn() - goalColumn);
-    }
-
     private void exitApplication() {
-        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to exit?", "Exit Confirmation", 0);
-        if (confirm == 0) {
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Are you sure you want to exit?",
+                "Exit Confirmation",
+                JOptionPane.YES_NO_OPTION);
+
+        if (confirm == JOptionPane.YES_OPTION) {
             System.exit(0);
         }
+    }
 
+    public int[][] getValues() {
+        return values;
+    }
+
+    public void setValues(int[][] values) {
+        this.values = values;
+    }
+
+    public boolean[][] getVisited() {
+        return visited;
+    }
+
+    public void setVisited(boolean[][] visited) {
+        this.visited = visited;
+    }
+
+    public int getStartRow() {
+        return startRow;
+    }
+
+    public int getStartColumn() {
+        return startColumn;
+    }
+
+    public ArrayList<JButton> getButtonList() {
+        return buttonList;
+    }
+
+    public void setButtonList(ArrayList<JButton> buttonList) {
+        this.buttonList = buttonList;
+    }
+
+    public int getRows() {
+        return rows;
+    }
+
+    public void setRows(int rows) {
+        this.rows = rows;
+    }
+
+    public int getColumns() {
+        return columns;
+    }
+
+    public void setColumns(int columns) {
+        this.columns = columns;
+    }
+
+    public boolean isBacktracking() {
+        return backtracking;
+    }
+
+    public void setBacktracking(boolean backtracking) {
+        this.backtracking = backtracking;
+    }
+
+    public Algorithm getAlgorithm() {
+        return algorithm;
+    }
+
+    public static int getCounterNodes() {
+        return counterNodes;
+    }
+
+    public static void setCounterNodes(int counterNodes) {
+        Maze.counterNodes = counterNodes;
     }
 }
+
+
+

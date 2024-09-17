@@ -2,7 +2,7 @@ import javax.swing.SwingUtilities;
 
 public class Main {
     public Main() {
-        new GUIMainMenu();
+        new MainMenu();
     }
 
     public static void main(String[] args) {
