@@ -60,5 +60,11 @@ Multithreading is a key technique used to improve the performance and responsive
 - **Clone the Repository**: git clone https://github.com/ArielSemel/Maze-Java-Project.git
 - **Compile and Run**: javac -d bin src/**/*.java ---> java -cp bin Main (Alternatively, you can use an IDE like IntelliJ IDEA or Eclipse to open the project and run it directly from the Main class)
   
-  
+## Uploading Images
+
+
+
+![image](https://github.com/user-attachments/assets/fde22eb2-d087-493a-897f-da13dbc1bd52)
+
+
 
