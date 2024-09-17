@@ -50,7 +50,15 @@ By integrating these algorithms, the project provides a comprehensive demonstrat
 ### MultiThreading
 Multithreading is a key technique used to improve the performance and responsiveness of applications by performing multiple operations concurrently. In this project, multithreading is utilized to handle the computationally intensive maze-solving processes and the graphical user interface (GUI) updates simultaneously.
 
-Getting Started
-Prerequisites
-Java Development Kit (JDK) 8 or higher
-IDE such as IntelliJ IDEA or Eclipse (optional, but recommended)
+## Getting Started
+
+### Prerequisites
+- Java Development Kit (JDK) 8 or higher
+- IDE such as IntelliJ IDEA or Eclipse (optional, but recommended)
+
+### Installation
+- **Clone the Repository**: git clone https://github.com/ArielSemel/Maze-Java-Project.git
+- **Compile and Run**: javac -d bin src/**/*.java ---> java -cp bin Main (Alternatively, you can use an IDE like IntelliJ IDEA or Eclipse to open the project and run it directly from the Main class)
+  
+  
+
