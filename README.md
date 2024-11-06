@@ -59,18 +59,3 @@ By integrating these algorithms, the project provides a comprehensive demonstrat
 
 ### MultiThreading
 Multithreading is a key technique used to improve the performance and responsiveness of applications by performing multiple operations concurrently. In this project, multithreading is utilized to handle the computationally intensive maze-solving processes and the graphical user interface (GUI) updates simultaneously.
-
-  
-## Uploading Images
-
-![image](https://github.com/user-attachments/assets/fde22eb2-d087-493a-897f-da13dbc1bd52)
-
-![image](https://github.com/user-attachments/assets/da7929c6-460c-4343-b8df-00f2bb46c2f1)
-
-![image](https://github.com/user-attachments/assets/6c0aa77a-06f4-45dc-8cad-2429b2aed559)
-
-
-
-
-
-
